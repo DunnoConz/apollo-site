@@ -34,10 +34,18 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    baseURL: '/apollo-site/', // Add this for server/prerendering
+    baseURL: '/apollo-site/', 
     prerender: {
-      crawlLinks: true
-      // Maybe add ignore list if needed later
+      crawlLinks: false, // Disable crawling
+      routes: [ // Explicitly define routes
+        '/apollo-site/', 
+        '/apollo-site/playground',
+        '/apollo-site/getting-started',
+        '/apollo-site/how-to-guides/state-management',
+        '/apollo-site/reference/commands',
+        '/apollo-site/explanation/architecture',
+        '/apollo-site/tutorials/your-first-app'
+      ]
       // ignore: ['/some-path-to-ignore']
     }
   },
