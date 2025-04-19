@@ -1,142 +1,147 @@
 <template>
-  <div class="playground">
-    <!-- Test div to verify border radius -->
-    <div class="w-32 h-32 bg-blue-500 rounded-lg mb-4"></div>
-    
-    <div class="flex gap-4 h-[600px]">
-      <div class="flex-1">
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Code Editor</h3>
-              <UButton
-                size="xs"
-                color="neutral"
-                variant="ghost"
-                icon="i-heroicons-play"
-                @click="runCode"
-              >
-                Run
-              </UButton>
-            </div>
-          </template>
-          <div ref="editorContainer" class="h-[500px]"></div>
-        </UCard>
+  <div class="playground-container">
+    <div class="editor-container">
+      <div class="editor-header">
+        <span class="editor-title">Racket Input</span>
+        <div class="editor-actions">
+          <UButton
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="i-heroicons-play"
+            @click="runCode"
+          >
+            Run
+          </UButton>
+        </div>
       </div>
-      <div class="flex-1">
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold">Output</h3>
-              <UButton
-                size="xs"
-                color="neutral"
-                variant="ghost"
-                icon="i-heroicons-arrow-path"
-                @click="clearOutput"
-              >
-                Clear
-              </UButton>
-            </div>
-          </template>
-          <div ref="outputContainer" class="h-[500px] overflow-auto p-4"></div>
-        </UCard>
+      <div class="editor-content">
+        <MonacoEditor
+          v-model="racketInput"
+          language="racket"
+          theme="vs-dark"
+          :options="editorOptions"
+          @change="compileCode"
+        />
+      </div>
+    </div>
+    
+    <div class="editor-container">
+      <div class="editor-header">
+        <span class="editor-title">Luau Output</span>
+        <div class="editor-actions">
+          <UButton
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="i-heroicons-arrow-path"
+            @click="clearOutput"
+          >
+            Clear
+          </UButton>
+        </div>
+      </div>
+      <div class="editor-content">
+        <MonacoEditor
+          v-model="luauOutput"
+          language="lua"
+          theme="vs-dark"
+          :options="{ ...editorOptions, readOnly: true }"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import * as monaco from 'monaco-editor'
-import loader from '@monaco-editor/loader'
+import { ref } from 'vue'
+import MonacoEditor from 'monaco-editor-vue3'
 
-const editorContainer = ref<HTMLElement | null>(null)
-const outputContainer = ref<HTMLElement | null>(null)
-let editor: monaco.editor.IStandaloneCodeEditor | null = null
+const racketInput = ref('')
+const luauOutput = ref('')
 
-const defaultCode = `import { Component } from '@apollo/core';
-
-class HelloWorld extends Component {
-  render() {
-    return (
-      <div>
-        <h1>Hello, Apollo!</h1>
-        <p>Welcome to the playground.</p>
-      </div>
-    );
-  }
+const editorOptions = {
+  automaticLayout: true,
+  minimap: { enabled: false },
+  fontSize: 14,
+  lineNumbers: 'on',
+  roundedSelection: false,
+  scrollBeyondLastLine: false,
+  readOnly: false,
+  theme: 'vs-dark'
 }
 
-// Create and mount the component
-const app = new App({
-  components: [HelloWorld]
-});
-
-app.mount('#app');`
-
-onMounted(async () => {
-  // Load Monaco
-  await loader.init()
+const compileCode = () => {
+  // Basic Racket to Luau conversion
+  const input = racketInput.value
+  let output = input
+    .replace(/\(define\s+\((\w+)\s+([^)]+)\)\s+([^)]+)\)/g, 'local function $1($2)\n    return $3\nend')
+    .replace(/\(add\s+(\w+)\s+(\w+)\)/g, '$1 + $2')
+    .replace(/\(sub\s+(\w+)\s+(\w+)\)/g, '$1 - $2')
+    .replace(/\(mul\s+(\w+)\s+(\w+)\)/g, '$1 * $2')
+    .replace(/\(div\s+(\w+)\s+(\w+)\)/g, '$1 / $2')
   
-  if (editorContainer.value) {
-    editor = monaco.editor.create(editorContainer.value, {
-      value: defaultCode,
-      language: 'typescript',
-      theme: 'vs-dark',
-      automaticLayout: true,
-      minimap: { enabled: false }
-    })
-  }
-})
+  luauOutput.value = output
+}
 
 const runCode = () => {
-  if (!editor || !outputContainer.value) return
-  
-  const code = editor.getValue()
-  outputContainer.value.innerHTML = ''
-  
-  try {
-    // Create a sandboxed environment
-    const sandbox = document.createElement('iframe')
-    sandbox.style.display = 'none'
-    document.body.appendChild(sandbox)
-    
-    // Execute the code in the sandbox
-    const script = sandbox.contentDocument?.createElement('script')
-    if (script) {
-      script.textContent = `
-        try {
-          ${code}
-        } catch (error) {
-          console.error(error);
-        }
-      `
-      sandbox.contentDocument?.body.appendChild(script)
-    }
-    
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(sandbox)
-    }, 1000)
-  } catch (error) {
-    outputContainer.value.innerHTML = `<pre class="text-red-500">${error}</pre>`
-  }
+  compileCode()
+  // Add any additional execution logic here
 }
 
 const clearOutput = () => {
-  if (outputContainer.value) {
-    outputContainer.value.innerHTML = ''
-  }
+  luauOutput.value = ''
 }
 </script>
 
 <style scoped>
-.playground {
-  @apply w-full;
+.playground-container {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  height: 100%;
+  background: #1e1e1e;
+}
+
+.editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #252526;
+}
+
+.editor-header {
+  padding: 0.5rem 1rem;
+  background: #2d2d2d;
+  border-bottom: 1px solid #3c3c3c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editor-title {
+  color: #d4d4d4;
+  font-family: 'Consolas', monospace;
+  font-size: 0.9rem;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editor-content {
+  flex: 1;
+  overflow: hidden;
 }
 
 :deep(.monaco-editor) {
-  border-radius: 0.5rem;
+  border-radius: 0;
+}
+
+:deep(.monaco-editor .margin) {
+  background-color: #1e1e1e;
 }
 </style> 
