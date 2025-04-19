@@ -29,22 +29,22 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Documentation for Apollo' }
       ]
     },
-    baseURL: '/apollo-site/', // Keep this for client-side routing
+    baseURL: '/apollo-site/',
     buildAssetsDir: '/_nuxt/'
   },
 
   nitro: {
     baseURL: '/apollo-site/', 
     prerender: {
-      crawlLinks: false, // Disable crawling
-      routes: [ // Explicitly define routes
-        '/apollo-site/', 
-        '/apollo-site/playground',
-        '/apollo-site/getting-started',
-        '/apollo-site/how-to-guides/state-management',
-        '/apollo-site/reference/commands',
-        '/apollo-site/explanation/architecture',
-        '/apollo-site/tutorials/your-first-app'
+      crawlLinks: false,
+      routes: [
+        '/', 
+        '/playground',
+        '/getting-started',
+        '/how-to-guides/state-management',
+        '/reference/commands',
+        '/explanation/architecture',
+        '/tutorials/your-first-app'
       ]
       // ignore: ['/some-path-to-ignore']
     }
