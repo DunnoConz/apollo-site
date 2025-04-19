@@ -19,7 +19,7 @@
           </p>
           <template #footer>
             <UButton
-              to="/apollo-site/tutorials"
+              to="/tutorials"
               color="gray"
               variant="ghost"
               block
@@ -41,7 +41,7 @@
           </p>
           <template #footer>
             <UButton
-              to="/apollo-site/how-to-guides"
+              to="/how-to-guides"
               color="gray"
               variant="ghost"
               block
@@ -63,7 +63,7 @@
           </p>
           <template #footer>
             <UButton
-              to="/apollo-site/reference"
+              to="/reference"
               color="gray"
               variant="ghost"
               block
@@ -85,7 +85,7 @@
           </p>
           <template #footer>
             <UButton
-              to="/apollo-site/explanation"
+              to="/explanation"
               color="gray"
               variant="ghost"
               block
@@ -109,7 +109,7 @@
           </p>
           <template #footer>
             <UButton
-              to="/apollo-site/playground"
+              to="/playground"
               color="primary"
               variant="solid"
               block

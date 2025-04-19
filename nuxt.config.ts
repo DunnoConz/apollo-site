@@ -29,13 +29,16 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Documentation for Apollo' }
       ]
     },
-    baseURL: '/apollo-site/', // GitHub Pages repository name
+    baseURL: '/apollo-site/', // Keep this for client-side routing
     buildAssetsDir: '/_nuxt/'
   },
 
   nitro: {
+    baseURL: '/apollo-site/', // Add this for server/prerendering
     prerender: {
       crawlLinks: true
+      // Maybe add ignore list if needed later
+      // ignore: ['/some-path-to-ignore']
     }
   },
 
