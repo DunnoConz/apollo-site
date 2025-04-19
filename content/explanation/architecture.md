@@ -1,43 +1,170 @@
-# Apollo Compiler Architecture
+# Apollo Architecture
 
-This document provides a high-level overview of the Apollo compiler's architecture, explaining how it transforms Racket code into executable Luau code for the Roblox platform.
+This document explains the architecture of the Apollo compiler and how it transforms Racket code into Luau.
 
-## Core Philosophy
+## Overview
 
-Apollo aims to bring the power and expressiveness of the Racket language to Roblox development. It achieves this by compiling Racket source code into optimized Luau, the scripting language used by Roblox.
+Apollo is a source-to-source compiler that takes Racket code as input and produces equivalent Luau code as output. The compilation process involves several stages:
 
-## Major Components
+1. Parsing
+2. Analysis
+3. Transformation
+4. Code Generation
 
-Based on the project structure outlined in the Apollo repository, the compilation process likely involves several key stages:
+## Compilation Pipeline
 
-1.  **Parsing (`src/apollo/compiler/parser.rkt`)**:
-    *   The compiler first reads the Racket source code (`.rkt` files).
-    *   It parses the Racket syntax, transforming the text into a structured representation that the compiler can understand, often an Abstract Syntax Tree (AST).
-    *   This stage handles Racket's unique syntax features, including macros and the module system.
+### 1. Parsing Stage
 
-2.  **Intermediate Representation (`src/apollo/compiler/ir.rkt`)**:
-    *   The parsed code is likely converted into an Intermediate Representation (IR).
-    *   The IR is a language-agnostic format that simplifies the code and makes it easier to analyze and optimize before generating the final output.
-    *   This stage might involve expanding macros, resolving module dependencies, and performing initial type checks or inferences if applicable.
+The parsing stage converts Racket source code into an Abstract Syntax Tree (AST).
 
-3.  **Code Generation (`src/apollo/compiler/codegen.rkt`)**:
-    *   The compiler takes the IR and translates it into equivalent Luau code.
-    *   This is the core transformation step, mapping Racket concepts (functions, pattern matching, modules) to their Luau counterparts.
-    *   Optimization techniques might be applied here to ensure the generated Luau code is efficient and performs well within the Roblox environment.
+```racket
+;; Input Racket code
+(define (add x y)
+  (+ x y))
 
-4.  **Entry Point (`src/apollo/main.rkt`)**:
-    *   This is the main executable part of the compiler, orchestrating the parsing, IR transformation, and code generation stages.
-    *   It handles command-line arguments (like input files and output destinations) and manages the overall compilation process.
+;; Parsed AST
+'(define
+  (add x y)
+  (+ x y))
+```
 
-## Key Features in Architecture
+### 2. Analysis Stage
 
-*   **Module System Handling**: The compiler needs to correctly interpret Racket's `require` and `provide` and map them to Luau's module system (e.g., `require`, `return`).
-*   **Compile-Time Function Evaluation (CTFE)**: Features like CTFE would be handled during the IR or code generation phase, evaluating Racket code at compile time and embedding the results directly into the Luau output.
-*   **Pattern Matching**: The code generator translates Racket's powerful pattern matching into efficient Luau conditional logic.
+The analysis stage performs several tasks:
+- Type inference
+- Symbol resolution
+- Scope analysis
+- Dependency tracking
 
-## Development and Testing
+This stage ensures that the code is semantically valid and gathers information needed for transformation.
 
-*   **Tests (`tests/`)**: The project includes a dedicated test suite to verify the compiler's correctness across various Racket features and edge cases.
-*   **Examples (`examples/`)**: Example projects demonstrate how to use Apollo in practical scenarios.
+### 3. Transformation Stage
 
-This architecture allows Apollo to leverage Racket's strengths while producing code compatible with the target Luau runtime environment on Roblox. 
+The transformation stage converts Racket constructs into their Luau equivalents:
+
+```racket
+;; Racket
+(define (add x y)
+  (+ x y))
+
+;; Transformed to intermediate representation
+'(function-definition
+  'add
+  '(x y)
+  '(+ x y))
+```
+
+### 4. Code Generation Stage
+
+The final stage generates Luau code from the transformed AST:
+
+```lua
+-- Generated Luau code
+local function add(x, y)
+    return x + y
+end
+```
+
+## Key Components
+
+### Parser
+
+The parser is responsible for:
+- Lexical analysis (tokenization)
+- Syntax analysis (AST construction)
+- Error reporting for syntax errors
+
+### Analyzer
+
+The analyzer performs:
+- Semantic analysis
+- Type checking
+- Symbol table management
+- Scope resolution
+
+### Transformer
+
+The transformer handles:
+- Pattern matching for Racket constructs
+- AST transformation rules
+- Special form handling
+- Macro expansion
+
+### Code Generator
+
+The code generator:
+- Traverses the transformed AST
+- Generates Luau syntax
+- Handles indentation and formatting
+- Manages variable naming
+
+## Special Features
+
+### 1. Roblox Integration
+
+Apollo includes special handling for Roblox-specific features:
+- Instance creation and manipulation
+- Event handling
+- Service access
+- Property access
+
+### 2. Error Handling
+
+The compiler includes comprehensive error handling:
+- Syntax error reporting
+- Type error detection
+- Runtime error prevention
+- Helpful error messages
+
+### 3. Optimization
+
+Several optimizations are performed:
+- Constant folding
+- Dead code elimination
+- Inline expansion
+- Loop optimization
+
+## Extension Points
+
+Apollo is designed to be extensible:
+
+### 1. Custom Transformers
+
+You can add custom transformers for:
+- Domain-specific language features
+- Custom syntax sugar
+- Special optimization rules
+
+### 2. Plugin System
+
+The plugin system allows:
+- Adding new analysis passes
+- Extending the type system
+- Adding new code generation targets
+
+## Best Practices
+
+When working with Apollo:
+
+1. **Code Organization**
+   - Keep related functions together
+   - Use meaningful names
+   - Add type annotations where helpful
+
+2. **Performance**
+   - Avoid unnecessary allocations
+   - Use appropriate data structures
+   - Consider compilation time
+
+3. **Maintainability**
+   - Document complex transformations
+   - Add tests for edge cases
+   - Keep the codebase modular
+
+## Future Directions
+
+Planned improvements include:
+- More sophisticated type inference
+- Better error messages
+- Additional optimization passes
+- Support for more Racket features 
