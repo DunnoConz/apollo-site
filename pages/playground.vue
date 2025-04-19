@@ -24,7 +24,7 @@ let editor: monaco.editor.IStandaloneCodeEditor | null = null
 const initialCode = `// Welcome to the Playground!
 // You can write and run JavaScript code here.
 
-function greet(name) {
+function greet(name: string) {
   console.log('Hello, ' + name + '!');
 }
 
