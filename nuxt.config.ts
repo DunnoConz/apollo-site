@@ -39,12 +39,7 @@ export default defineNuxtConfig({
       crawlLinks: false,
       routes: [
         '/', 
-        '/playground',
-        '/getting-started',
-        '/how-to-guides/state-management',
-        '/reference/commands',
-        '/explanation/architecture',
-        '/tutorials/your-first-app'
+        '/playground'
       ]
       // ignore: ['/some-path-to-ignore']
     }
